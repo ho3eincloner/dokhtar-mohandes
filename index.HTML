@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Love ❤️</title>
+
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #0b0b16;
+    overflow: hidden;
+    height: 100%;
+  }
+  canvas {
+    display: block;
+  }
+</style>
+</head>
+
+<body>
+<canvas id="canvas"></canvas>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+
+let t = 0;
+const particles = [];
+
+class Particle {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.vx = (Math.random() - 0.5) * 2;
+    this.vy = (Math.random() - 0.5) * 2;
+    this.life = Math.random() * 60 + 30;
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.life--;
+  }
+  draw() {
+    ctx.fillStyle = "rgba(255,120,180,0.8)";
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawHeart(scale) {
+  ctx.beginPath();
+  for (let i = 0; i <= 360; i++) {
+    const a = i * Math.PI / 180;
+    const x = 16 * Math.pow(Math.sin(a), 3);
+    const y =
+      13 * Math.cos(a) -
+      5 * Math.cos(2 * a) -
+      2 * Math.cos(3 * a) -
+      Math.cos(4 * a);
+
+    const px = canvas.width / 2 + x * scale;
+    const py = canvas.height / 2 - y * scale;
+
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+
+    if (Math.random() < 0.03) {
+      particles.push(new Particle(px, py));
+    }
+  }
+  ctx.closePath();
+
+  const glow = 120 + Math.sin(t) * 80;
+  ctx.strokeStyle = `rgb(255, ${glow}, ${glow})`;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+
+function drawText(scale) {
+  ctx.save();
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+  ctx.scale(scale, scale);
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = "bold 40px Arial";
+  ctx.fillStyle = "#ffd1e8";
+  ctx.fillText("Love you ARMINA ❤️💖", 0, 0);
+  ctx.restore();
+}
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const beat = 18 + Math.sin(t) * 2;
+  drawHeart(beat);
+  drawText(1 + Math.sin(t) * 0.03);
+
+  for (let i = particles.length - 1; i >= 0; i--) {
+    particles[i].update();
+    particles[i].draw();
+    if (particles[i].life <= 0) particles.splice(i, 1);
+  }
+
+  t += 0.05;
+  requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+</body>
+</html>
